@@ -1,15 +1,22 @@
 import uvicorn
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from tts import text_to_speech
 
 
 # Pydantic model to define the structure of the incoming request body
 class TextInput(BaseModel):
     inputText: str
 
+
+# Load environment variables from .env file
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Initialize the FastAPI application
 app = FastAPI()
@@ -107,6 +114,16 @@ async def transform_text(text_input: TextInput):
     """
     transformed_text = transform_georgian_text(text_input.inputText)
     return JSONResponse(content={"transformed_text": transformed_text})
+
+
+@app.post("/tts")
+async def tts(text_input: TextInput):
+    """
+    This endpoint receives JSON with the input text, converts it to speech,
+    and returns the audio data.
+    """
+    audio_data = text_to_speech(GEMINI_API_KEY, text_input.inputText)
+    return JSONResponse(content={"audio_data": audio_data})
 
 
 if __name__ == "__main__":

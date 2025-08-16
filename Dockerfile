@@ -8,6 +8,7 @@ COPY pyproject.toml .
 RUN uv pip install --system --no-cache -r pyproject.toml
 
 COPY main.py .
+COPY tts.py .
 COPY static ./static
 COPY templates ./templates
 
